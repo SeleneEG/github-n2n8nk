@@ -28,12 +28,12 @@ export class DepartamentoService {
   constructor() {}
 
   getDepartamento(): Observable<Departamento[]> {
-    return of(this.departamentos).pipe(delay(5000));
+    return of(this.departamentos).pipe(delay(2000));
   }
 
   getDepartamentoPorId(id: number): Observable<Departamento> {
     return of(this.departamentos.filter((d) => d.id === id)[0]).pipe(
-      delay(5000)
+      delay(2000)
     );
   }
 }

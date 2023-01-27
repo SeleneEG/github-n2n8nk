@@ -119,10 +119,10 @@ export class CategoriaService {
   constructor() {}
 
   getCategorias(): Observable<Categoria[]> {
-    return of(this.categorias).pipe(delay(5000));
+    return of(this.categorias).pipe(delay(2000));
   }
 
   getCategoriaPorId(id: number): Observable<Categoria> {
-    return of(this.categorias.filter((c) => c.id === id)[0]).pipe(delay(5000));
+    return of(this.categorias.filter((c) => c.id === id)[0]).pipe(delay(2000));
   }
 }

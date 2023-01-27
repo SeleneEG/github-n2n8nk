@@ -218,7 +218,7 @@ export class ProductoService {
   constructor() {}
 
   getProductos(): Observable<Producto[]> {
-    return of(this.productos).pipe(delay(5000));
+    return of(this.productos).pipe(delay(2000));
   }
 
   getProductoPorId(id: number): Observable<Producto> {
@@ -227,7 +227,7 @@ export class ProductoService {
 
   createProducto(producto: Producto): Observable<Producto> {
     this.productos.push(producto);
-    return of(producto).pipe(delay(5000));
+    return of(producto).pipe(delay(2000));
   }
 
   updateProducto(producto: Producto): Observable<Producto> {
@@ -235,13 +235,13 @@ export class ProductoService {
       p.id === producto.id ? { ...producto } : p
     );
     this.productos = updated;
-    return of(producto).pipe(delay(5000));
+    return of(producto).pipe(delay(2000));
   }
 
   deleteProducto(id: number): Observable<Producto> {
     let deleted: Producto = this.productos.filter((p) => p.id === id)[0];
     let updated = this.productos.filter((p) => p.id !== id);
     this.productos = updated;
-    return of(deleted).pipe(delay(5000));
+    return of(deleted).pipe(delay(2000));
   }
 }
