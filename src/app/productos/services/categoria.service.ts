@@ -118,11 +118,11 @@ export class CategoriaService {
 
   constructor() {}
 
-  getDepartamento(): Observable<Categoria[]> {
+  getCategorias(): Observable<Categoria[]> {
     return of(this.categorias).pipe(delay(5000));
   }
 
-  getDepartamentoPorId(id: number): Observable<Categoria> {
+  getCategoriaPorId(id: number): Observable<Categoria> {
     return of(this.categorias.filter((c) => c.id === id)[0]).pipe(delay(5000));
   }
 }
