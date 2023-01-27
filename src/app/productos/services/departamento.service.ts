@@ -1,18 +1,39 @@
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Departamento } from '../domain/departamento';
+import { Observable, of } from 'rxjs';
+import { map, filter, delay } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DepartamentoService {
-  private endPointURL: string = 'http://localhost:3000/departamento';
-  protected httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    }),
-  };
+  private departamentos: Departamento[] = [
+    {
+      id: 1,
+      clave: 'HARDWARE',
+      nombre: 'Hardware',
+    },
+    {
+      id: 2,
+      clave: 'ACCESORIOS',
+      nombre: 'Accesorios',
+    },
+    {
+      id: 3,
+      clave: 'ELECTRONICA',
+      nombre: 'Electrónica',
+    },
+  ];
 
-  constructor(private http: HttpClient) {}
- 
+  constructor() {}
+
+  getDepartamento(): Observable<Departamento[]> {
+    return of(this.departamentos).pipe(delay(5000));
+  }
+
+  getDepartamentoPorId(id: number): Observable<Departamento> {
+    return of(this.departamentos.filter((d) => d.id === id)[0]).pipe(
+      delay(5000)
+    );
+  }
 }
