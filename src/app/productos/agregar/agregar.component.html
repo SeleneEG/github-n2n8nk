@@ -1,0 +1,188 @@
+<div *ngIf="!agrupacion">
+<p-progressSpinner class="spinner"></p-progressSpinner>
+<div class="texto-spinner">Recuperando información...</div>
+</div>
+<div *ngIf="agrupacion">
+<p-breadcrumb [model]="items" [home]="home"></p-breadcrumb>
+<form
+  class="layout-content"
+  [formGroup]="productoForm"
+  (ngSubmit)="guardarProducto()"
+>
+  <p-card header="Agregar Producto">
+    <div class="row align-items-center">
+      <div class="col-md-4 text-end">
+        Nombre<span class="text-danger">*</span>:
+      </div>
+      <div class="col-md-4">
+        <input
+          type="text"
+          pInputText
+          placeholder="Nombre del producto"
+          style="width: 100%"
+          formControlName="nombre"
+          [class.ng-dirty]="
+            productoForm.controls['nombre'].touched &&
+            productoForm.controls['nombre'].errors
+          "
+          maxlength="250"
+        />
+        <span
+          *ngIf="
+            productoForm.controls['nombre'].touched &&
+            productoForm.controls['nombre'].errors
+          "
+          class="text-danger small"
+        >
+          El campo es requerido
+        </span>
+      </div>
+    </div>
+    <div class="row align-items-center pt-3">
+      <div class="col-md-4 text-end">
+        Marca<span class="text-danger">*</span>:
+      </div>
+      <div class="col-md-4">
+        <input
+          type="text"
+          pInputText
+          placeholder="Marca del producto"
+          style="width: 100%"
+          formControlName="marca"
+          [class.ng-dirty]="
+            productoForm.controls['marca'].touched &&
+            productoForm.controls['marca'].errors
+          "
+          maxlength="100"
+        />
+        <span
+          *ngIf="
+            productoForm.controls['marca'].touched &&
+            productoForm.controls['marca'].errors
+          "
+          class="text-danger small"
+        >
+          El campo es requerido
+        </span>
+      </div>
+    </div>
+    <div class="row align-items-center pt-3">
+      <div class="col-md-4 text-end">
+        Modelo<span class="text-danger">*</span>:
+      </div>
+      <div class="col-md-4">
+        <input
+          type="text"
+          pInputText
+          placeholder="Modelo del producto"
+          style="width: 100%"
+          formControlName="modelo"
+          [class.ng-dirty]="
+            productoForm.controls['modelo'].touched &&
+            productoForm.controls['modelo'].errors
+          "
+          maxlength="100"
+        />
+        <span
+          *ngIf="
+            productoForm.controls['modelo'].touched &&
+            productoForm.controls['modelo'].errors
+          "
+          class="text-danger small"
+        >
+          El campo es requerido
+        </span>
+      </div>
+    </div>
+    <div class="row align-items-center pt-3">
+      <div class="col-md-4 text-end">
+        Precio<span class="text-danger">*</span>:
+      </div>
+      <div class="col-md-4">
+        <p-inputNumber
+          mode="currency"
+          currency="USD"
+          locale="en-US"
+          class="inputPrecio"
+          [min]="0"
+          [max]="999999999"
+          [style]="{ width: '100%' }"
+          class="p-inputNumber"
+          placeholder="Precio"
+          formControlName="precio"
+          [class.ng-dirty]="
+            productoForm.controls['precio'].touched &&
+            productoForm.controls['precio'].errors
+          "
+        ></p-inputNumber>
+        <span
+          *ngIf="
+            productoForm.controls['precio'].touched &&
+            productoForm.controls['precio'].errors
+          "
+          class="text-danger small"
+        >
+          El campo es requerido
+        </span>
+      </div>
+    </div>
+    <div class="row align-items-center pt-3">
+      <div class="col-md-4 text-end">
+        Categoría<span class="text-danger">*</span>:
+      </div>
+      <div class="col-md-4">
+        <p-dropdown
+          [options]="agrupacion"
+          optionLabel="label"
+          [style]="{ width: '100%' }"
+          [group]="true"
+          placeholder="Selecciona una opción"
+          formControlName="categoria"
+          [class.ng-dirty]="
+            productoForm.controls['categoria'].touched &&
+            productoForm.controls['categoria'].errors
+          "
+        >
+          <ng-template let-group pTemplate="group">
+            <div class="p-d-flex p-ai-center">
+              <i class="pi pi-angle-double-down"></i>
+              <span> {{ group.label }}</span>
+            </div>
+          </ng-template>
+        </p-dropdown>
+        <span
+          *ngIf="
+            productoForm.controls['categoria'].touched &&
+            productoForm.controls['categoria'].errors
+          "
+          class="text-danger small"
+        >
+          El campo es requerido
+        </span>
+      </div>
+    </div>
+    <div class="row pt-3">
+      <div class="col-md-8 text-end">
+        <button
+          pButton
+          pRipple
+          type="button"
+          label="Regresar"
+          class="p-button-rounded p-button-secondary"
+          style="margin-right: 0.5rem"
+          (click)="regresar()"
+          [disabled]="disabled"
+        ></button>
+        <button
+          pButton
+          pRipple
+          type="submit"
+          label="Guardar"
+          class="p-button-rounded"
+          [disabled]="disabled"
+        ></button>
+      </div>
+    </div>
+  </p-card>
+</form>
+</div>
