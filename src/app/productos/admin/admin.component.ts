@@ -1,15 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { MessageService, SelectItemGroup } from 'primeng/api';
-import { Categoria } from '../domain/categoria';
-import { Departamento } from '../domain/departamento';
-import { CategoriaService } from '../services/categoria.service';
-import { DepartamentoService } from '../services/departamento.service';
-import { MenuItem } from 'primeng/api';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Location } from '@angular/common';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Producto } from '../domain/producto';
 import { ProductoService } from '../services/producto.service';
+import { MessageService } from 'primeng/api';
+import { MenuItem } from 'primeng/api';
+import * as FileSaver from 'file-saver';
+import { CategoriaService } from '../services/categoria.service';
+import { Categoria } from '../domain/categoria';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
   selector: 'app-admin',
@@ -17,99 +15,119 @@ import { ProductoService } from '../services/producto.service';
   styleUrls: ['./admin.component.css'],
 })
 export class AdminComponent implements OnInit {
-  categorias!: Categoria[];
-  departamentos!: Departamento[];
-  agrupacion!: SelectItemGroup[];
+  productos!: Producto[];
   items!: MenuItem[];
   home!: MenuItem;
-  disabled: boolean = false;
-
-  productoForm = new FormGroup({
-    nombre: new FormControl('', [
-      Validators.required,
-      Validators.minLength(1),
-      Validators.maxLength(250),
-    ]),
-    marca: new FormControl('', [
-      Validators.required,
-      Validators.minLength(1),
-      Validators.maxLength(100),
-    ]),
-    modelo: new FormControl('', [
-      Validators.required,
-      Validators.minLength(1),
-      Validators.maxLength(100),
-    ]),
-    precio: new FormControl(0, [
-      Validators.required,
-      Validators.min(1),
-      Validators.max(999999999),
-    ]),
-    categoria: new FormControl('', [Validators.required]),
-  });
+  categorias!: Categoria[];
 
   constructor(
+    private router: Router,
     public route: ActivatedRoute,
+    private productoService: ProductoService,
     private categoriaService: CategoriaService,
-    private departamentoService: DepartamentoService,
-    private localtion: Location,
     private messageService: MessageService,
-    private productoService: ProductoService
+    private currency_pipe_object: CurrencyPipe
   ) {}
 
   ngOnInit(): void {
-    this.categoriaService.getCategorias().subscribe((categorias) => {
-      this.categorias = categorias;
-      this.departamentoService.getDepartamento().subscribe((departamentos) => {
-        this.departamentos = departamentos;
-        this.agruparCategorias();
+    this.categoriaService.getCategorias().subscribe((respCat) => {
+      this.categorias = respCat;
+      this.productoService.getProductos().subscribe((resp) => {
+        console.log();
+        this.productos = resp.map((p) => {
+          return {
+            ...p,
+            categoriaNombre: this.categorias.filter(
+              (c) => c.id === resp[0].categoriaId
+            )[0].nombre,
+          };
+        });
       });
     });
-    this.items = [{ label: 'Agregar' }];
+
+    this.items = [{ label: 'Admin' }];
     this.home = { icon: 'pi pi-home', routerLink: '/' };
   }
 
-  agruparCategorias() {
-    this.agrupacion = [];
-    this.departamentos.forEach((departamento) => {
-      this.agrupacion.push({
-        label: departamento.nombre,
-        value: departamento.id,
-        items: this.categorias
-          .filter((cat) => cat.departamentoId === departamento.id)
-          .map((obj) => {
-            return { label: obj.nombre, value: obj.id };
-          }),
-      });
+  botonesEditarEliminar(idProducto): any {
+    return [
+      {
+        label: 'Editar',
+        icon: 'pi pi-pencil',
+        command: () => {
+          this.editar(idProducto);
+        },
+      },
+      {
+        label: 'Eliminar',
+        icon: 'pi pi-trash',
+        command: () => {
+          this.eliminar(idProducto);
+        },
+      },
+    ];
+  }
+
+  agregar() {
+    this.router.navigate(['../agregar'], { relativeTo: this.route });
+  }
+
+  editar(idProducto: number) {
+    this.router.navigate(['../editar', idProducto], {
+      relativeTo: this.route,
     });
   }
 
-  regresar() {
-    this.localtion.back();
+  eliminar(idProducto: number) {
+    this.router.navigate(['../eliminar', idProducto], {
+      relativeTo: this.route,
+    });
   }
 
-  guardarProducto() {
-    if (this.productoForm.valid) {
-      this.disabled = true;
-      let nuevoProducto: Producto;
-      nuevoProducto = {
-        nombre: this.productoForm.get('nombre').value,
-        marca: this.productoForm.get('marca').value,
-        modelo: this.productoForm.get('modelo').value,
-        precio: this.productoForm.get('precio').value,
-        categoriaId: this.productoForm.get('categoria').value['value'],
-        descuento: 0,
-      };
+  detalles(idProducto: number) {
+    this.router.navigate(['../detalles', idProducto], {
+      relativeTo: this.route,
+    });
+  }
 
-      this.productoService.createProducto(nuevoProducto).subscribe((resp) => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Producto agregado',
-        });
-        this.localtion.back();
+  exportarExcel() {
+    import('xlsx').then((xlsx) => {
+      const worksheet = xlsx.utils.json_to_sheet(
+        this.productos.map((p) => {
+          return {
+            id: p.id,
+            nombre: p.nombre,
+            modelo: p.modelo,
+            precio: this.currency_pipe_object.transform(
+              p.precio,
+              'USD',
+              'symbol',
+              '1.2-2'
+            ),
+            categoria: this.categorias.filter((c) => c.id === p.categoriaId)[0]
+              .nombre,
+          };
+        })
+      );
+      const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
+      const excelBuffer: any = xlsx.write(workbook, {
+        bookType: 'xlsx',
+        type: 'array',
       });
-    } else {
-      this.productoForm.markAllAsTouched();
-    }
+      this.crearArchivoExcel(excelBuffer, 'products');
+    });
+  }
+
+  crearArchivoExcel(buffer: any, nombreArchivo: string): void {
+    let EXCEL_TYPE =
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+    let EXCEL_EXTENSION = '.xlsx';
+    const data: Blob = new Blob([buffer], {
+      type: EXCEL_TYPE,
+    });
+    FileSaver.saveAs(
+      data,
+      nombreArchivo + '_export_' + new Date().getTime() + EXCEL_EXTENSION
+    );
   }
 }
